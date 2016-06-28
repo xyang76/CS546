@@ -1,0 +1,10 @@
+My result:
+
+xinchenangdeMBP:mp3 xinchengyang$ python 3_philosophers.py 20 1000
+Running dining philosophers simulation: 20 philosophers, 1000 meals each
+1. Footman solution, time elapsed:2.838s
+2. Left-handed solution, time elapsed:2.139s
+3. Tanenbaum's solution, time elapsed:1.691s
+
+After finish my program, I had ran my program 3 times, the time elapsed are the same, footman solution is the slowest solution and the Tanenbaum’s solution is the fastest.
+In my opinion, because footman solution require a footman lock to keep concurrency, so it may leads extra block that waste cpu time, and Tanenbaum’s solution signal and check neighbors when a philosopher get fork and put fork, so it is the fastest.
