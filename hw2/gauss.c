@@ -190,14 +190,14 @@ void gauss() {
   for (norm = 0; norm < N - 1; norm++) {
     printf("[1]Norm -- %d.\n", norm);
     for (row = norm + 1; row < N; row++) {
-        printf("  [2] -- A[%d][%d], A[%d][%d].\n", row, norm, norm, norm);
         multiplier = A[row][norm] / A[norm][norm];
+        printf("  [2] -- %f = A[%d][%d] / A[%d][%d].\n", multiplier, row, norm, norm, norm);
         for (col = norm; col < N; col++) {
-            printf("    [3]in -- A[%d][%d], A[%d][%d].\n", row, col, norm, col);
             A[row][col] -= A[norm][col] * multiplier;
+            printf("    [3] -- A[%d][%d] = A[%d][%d] * %f.\n", row, col, norm, col, multiplier);
         }
-        printf("  [2] -- B[%d] = B[%d].\n", row, norm);
         B[row] -= B[norm] * multiplier;
+        printf("  [2] -- B[%d] = B[%d] * %f.\n", row, norm, multiplier);
     }
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back
