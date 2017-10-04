@@ -14,8 +14,9 @@ int main(int argc,char* argv[]) {
     {
         printf("hello world! \n");
         #pragma omp parallel for
-        for(int i = 0; i < 4; ++i)
+        for(int i = 0; i < 4; ++i) {
             Test( i );
+        }
         printf("Finish! \n");
     }
 }
