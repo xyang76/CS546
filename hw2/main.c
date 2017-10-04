@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef _OPENMP
+    fprintf(stderr, "OpenMP not supported");
+#endif
+
 void Test(int n) {
     for(int i = 0; i < 10000; ++i) {
     //do nothing, just waste time
