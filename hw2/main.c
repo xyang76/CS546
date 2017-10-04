@@ -13,7 +13,7 @@ int main(int argc,char* argv[]) {
     #pragma omp parallel num_threads (3) 
     {
         printf("hello world! \n");
-        #pragma omp parallel for
+        #pragma omp for
         for(int i = 0; i < 4; ++i) {
             printf("Iteration %d! \n", i);
         }
