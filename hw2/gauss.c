@@ -190,12 +190,13 @@ void gauss() {
   for (norm = 0; norm < N - 1; norm++) {
     printf("[1]Norm -- %d.\n", norm);
     for (row = norm + 1; row < N; row++) {
-        printf("  [2]multi -- %d, %d.\n", row, norm);
+        printf("  [2] -- A[%d][%d], A[%d][%d].\n", row, norm, norm, norm);
         multiplier = A[row][norm] / A[norm][norm];
         for (col = norm; col < N; col++) {
-            printf("    [3]in -- %d, %d, %d.\n", row, norm, col);
+            printf("    [3]in -- A[%d][%d], A[%d][%d].\n", row, col, norm, col);
             A[row][col] -= A[norm][col] * multiplier;
         }
+        printf("  [2] -- B[%d] = B[%d].\n", row, norm);
         B[row] -= B[norm] * multiplier;
     }
   }
