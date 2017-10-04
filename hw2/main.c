@@ -10,7 +10,8 @@ void Test(int n) {
 }
 
 int main(int argc,char* argv[]) {
-    #pragma omp parallel num_threads (3) {
+    #pragma omp parallel num_threads (3) 
+    {
         printf("hello world! \n");
         #pragma omp parallel for
         for(int i = 0; i < 4; ++i)
