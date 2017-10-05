@@ -176,18 +176,19 @@ int main(int argc, char **argv) {
 
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
-struct {
+struct p_args{
   pthread_barrier_t barrier;    // We need a barrier to maintain data dependency.
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
-} p_args;
+};
 
 /* Pthread function */
-void* p_run(struct p_args *args) {
+void* p_run(void *parameters) {
   int norm, row, col; 
   float multiplier;
   
+  struct p_args *args = (struct char_print_parms*) parameters; 
   norm = args->norm;
   for (norm = 0; norm < N - 1; norm++) {
       /* Here we do row += args.num_thread*/
@@ -216,15 +217,14 @@ void gauss() {
   
   /* Init pthread variables: barrier and mutex */
   pthread_barrier_t barrier;
-  struct p_args *args;
+  struct p_args args;
   pthread_barrier_init(&barrier, NULL, num_thread + 1);
   
-  args = (struct p_args *)malloc(sizeof(struct p_args));
   /* Initialize pthread and args */
   for(int i = 0; i < num_thread; i++) {
-    args->barrier = barrier;
-    args->num_thread = num_thread;
-    args->start_index = i + 1;       // Cause the inner loop start from i + 1;
+    args.barrier = barrier;
+    args.num_thread = num_thread;
+    args.start_index = i + 1;       // Cause the inner loop start from i + 1;
     pthread_create(NULL, NULL, p_run, (void*) &args);
   }
   
