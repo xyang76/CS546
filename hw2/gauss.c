@@ -235,7 +235,7 @@ void gauss() {
     for (norm = 0; norm < N - 1; norm++) {
         /* 1. Parallel the inner loop only, bacause of loop dependency. */
         /* 2. Use static chunk size will have better performance. */
-        #pragma omp for schedule(static, chunk_size)   
+        #pragma omp for  
         for (row = norm + 1; row < N; row++) {
           multiplier = A[row][norm] / A[norm][norm];
           printf("  [2] %d -- %f = A[%d][%d] / A[%d][%d].\n", omp_get_thread_num(), multiplier, row, norm, norm, norm);
