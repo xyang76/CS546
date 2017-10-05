@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
 struct p_args{
-  pthread_barrier_t barrier;    // We need a barrier to maintain data dependency.
+  pthread_barrier_t *barrier;   // We need a barrier to maintain data dependency.
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
@@ -222,7 +222,7 @@ void gauss() {
   
   /* Initialize pthread and args */
   for(int i = 0; i < num_thread; i++) {
-    args.barrier = barrier;
+    args.barrier = &barrier;
     args.num_thread = num_thread;
     args.start_index = i + 1;       // Cause the inner loop start from i + 1;
     pthread_create(NULL, NULL, p_run, (void*) &args);
