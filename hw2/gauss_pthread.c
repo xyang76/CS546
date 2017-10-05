@@ -181,24 +181,24 @@ struct p_args {
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
-}
+};
 
 /* Pthread function */
-void p_run(struct p_args) {
+void p_run(struct p_args args) {
   int norm, row, col; 
   float multiplier;
   
-  norm = p_args.norm;
+  norm = args.norm;
   for (norm = 0; norm < N - 1; norm++) {
-      /* Here we do row += p_args.num_thread*/
-    for (row = norm + p_args.start_index; row < N; row+= p_args.num_thread) {
+      /* Here we do row += args.num_thread*/
+    for (row = norm + args.start_index; row < N; row+= args.num_thread) {
       multiplier = A[row][norm] / A[norm][norm];
       for (col = norm; col < N; col++) {
         A[row][col] -= A[norm][col] * multiplier;
       }
       B[row] -= B[norm] * multiplier;
     }
-    pthread_barrier_wait(p_args->barrier);      // After each iteration, we release barrier.
+    pthread_barrier_wait(args->barrier);      // After each iteration, we release barrier.
   }  
 }
 
