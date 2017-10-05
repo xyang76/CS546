@@ -19,7 +19,7 @@ int main(int argc,char* argv[]) {
         printf("hello world! \n");
         #pragma omp for
         for(int i = 0; i < 4; ++i) {
-            printf("Iteration %d! \n", i);
+            printf("Iteration %d, %d! \n", i, omp_get_thread_num());
         }
         printf("Finish! \n");
     }
