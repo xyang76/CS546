@@ -197,6 +197,8 @@ void* p_run(struct p_args *args) {
       }
       B[row] -= B[norm] * multiplier;
     }
+    pthread_barrier_wait(&args->barrier);
+    pthread_barrier_wait(&args->barrier_main);
   }
 }
 
@@ -214,6 +216,8 @@ void gauss() {
   
   struct p_args args ;
   pthread_barrier_t barrier;
+  pthread_barrier_t barrier_main;
+  pthread_barrier_init(&barrier, NULL, num_thread + 1);
   pthread_barrier_init(&barrier, NULL, num_thread + 1);
   pthread_t tid;
   void *status;
@@ -225,10 +229,17 @@ void gauss() {
     args.start_index = i + 1;       // Cause the inner loop start from i + 1;
     pthread_create(&tid, NULL, p_run, (void*) &args);
   }
+  
+  /* Do coordination between pthreads based on barrier*/
+  for(int i = 0; i < num_thread; i++) {
+      pthread_barrier_wait(barrier);
+      pthread_barrier_init(&barrier, NULL, num_thread + 1);
+      pthread_barrier_wait(barrier_main);
+  }
+  
   for(int i = 0; i < num_thread; i++) {
       pthread_join(tid, &status);
   }
-  
   
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
