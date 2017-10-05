@@ -232,9 +232,9 @@ void gauss() {
   
   /* Do coordination between pthreads based on barrier*/
   for(int i = 0; i < num_thread; i++) {
-      pthread_barrier_wait(barrier);
+      pthread_barrier_wait(&barrier);
       pthread_barrier_init(&barrier, NULL, num_thread + 1);
-      pthread_barrier_wait(barrier_main);
+      pthread_barrier_wait(&barrier_main);
       pthread_barrier_init(&barrier_main, NULL, num_thread + 1);
   }
   
