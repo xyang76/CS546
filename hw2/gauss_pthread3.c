@@ -177,6 +177,7 @@ int main(int argc, char **argv) {
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
 struct p_args{
+  pthread_barrier_t barrier;    // We need a barrier to maintain data dependency.
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
@@ -187,8 +188,7 @@ void* p_run(struct p_args *args) {
   int norm, row, col; 
   float multiplier;
   
-  norm = args->norm;
-  
+  for(norm = 0; norm < N - 1; norm++) {
   /* Here we do row += args.num_thread*/
     for (row = norm + args->start_index; row < N; row+= args->num_thread) {
       multiplier = A[row][norm] / A[norm][norm];
@@ -197,7 +197,7 @@ void* p_run(struct p_args *args) {
       }
       B[row] -= B[norm] * multiplier;
     }
- 
+  }
 }
 
 /****** You will replace this routine with your own parallel version *******/
@@ -213,21 +213,22 @@ void gauss() {
   int num_thread = 4, chunk_size = 1;      
   
   struct p_args args ;
+  pthread_barrier_t barrier;
+  pthread_barrier_init(&barrier, NULL, num_thread + 1);
   pthread_t tid;
   void *status;
   
-  for(norm = 0; norm < N - 1; norm++) {
-      /* Initialize pthread and args */
-      for(int i = 0; i < num_thread; i++) {
-        args.num_thread = num_thread;
-        args.start_index = i + 1;       // Cause the inner loop start from i + 1;
-        args.norm = norm;
-        pthread_create(&tid, NULL, p_run, (void*) &args);
-      }
-      for(int i = 0; i < num_thread; i++) {
-          pthread_join(tid, &status);
-      }
+  /* Initialize pthread and args */
+  for(int i = 0; i < num_thread; i++) {
+    args.barrier = barrier;
+    args.num_thread = num_thread;
+    args.start_index = i + 1;       // Cause the inner loop start from i + 1;
+    pthread_create(&tid, NULL, p_run, (void*) &args);
   }
+  for(int i = 0; i < num_thread; i++) {
+      pthread_join(tid, &status);
+  }
+  
   
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
