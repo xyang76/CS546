@@ -215,6 +215,8 @@ void gauss() {
   int num_thread = 4, chunk_size = 1;      
   
   struct p_args args;
+  pthread_t tid;
+  void *status;
   
   for(norm = 0; norm < N - 1; norm++) {
       /* Initialize pthread and args */
@@ -223,7 +225,10 @@ void gauss() {
         args.num_thread = num_thread;
         args.start_index = i + 1;       // Cause the inner loop start from i + 1;
         args.norm = norm;
-        pthread_create(NULL, NULL, p_run, (void*) &args);
+        pthread_create(&tid, NULL, p_run, (void*) &args);
+      }
+      for(int i = 0; i < num_thread; i++) {
+          pthread_join(tid, &status);
       }
   }
   
