@@ -232,6 +232,7 @@ void gauss() {
   /* Put it outside because we do not want to allocate and release threads again and again. */
   #pragma omp parallel num_threads (num_thread)    
   {
+    #pragma omp parallel for
     for (norm = 0; norm < N - 1; norm++) {
         /* 1. Parallel the inner loop only, bacause of loop dependency. */
         /* 2. Use static chunk size will have better performance. */

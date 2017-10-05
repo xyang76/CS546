@@ -17,6 +17,7 @@ int main(int argc,char* argv[]) {
     int threadNum = 3;
     #pragma omp parallel num_threads (threadNum) 
     {
+        #pragma omp parallel for
         for(int i = 0; i < 5; ++i) {
             printf("hello world! \n");
             #pragma omp for schedule(static, 1)
