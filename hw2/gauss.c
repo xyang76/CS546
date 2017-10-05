@@ -246,7 +246,8 @@ void gauss() {
           B[row] -= B[norm] * multiplier;
           printf("  [2] -- B[%d] = B[%d] * %f.\n", row, norm, multiplier);
         }
-        /* Implicit barrier here, so for each iteration, we will avoid violate loop dependency.*/
+        /* Implicit barrier here, so for each iteration, we will not violate loop dependency.*/
+        printf("Finish\n");
     }
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back
