@@ -230,11 +230,11 @@ void gauss() {
   
   /* Coordination based on barrier */
   for(int i = 0; i < N - 1; i++) {
-    pthread_barrier_wait(&args->barrier); 
+    pthread_barrier_wait(&args.barrier); 
     pthread_barrier_init(&barrier, NULL, num_thread + 1);       // After each iteration, reset barrier.
   }
   
-  pthread_barrier_destroy(&args->barrier);
+  pthread_barrier_destroy(&args.barrier);
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
    */
