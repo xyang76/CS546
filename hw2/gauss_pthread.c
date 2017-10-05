@@ -184,7 +184,7 @@ struct p_args {
 };
 
 /* Pthread function */
-void p_run(struct p_args args) {
+void* p_run(struct p_args args) {
   int norm, row, col; 
   float multiplier;
   
@@ -222,16 +222,16 @@ void gauss() {
     args.barrier = barrier;
     args.num_thread = num_thread;
     args.start_index = i + 1;       // Cause the inner loop start from i + 1;
-    pthread_create(NULL, NULL, p_run, (void*) args);
+    pthread_create(NULL, NULL, p_run, (void*) &args);
   }
   
   /* Coordination based on barrier */
   for(int i = 0; i < N - 1; i++) {
-    pthread_barrier_wait(p_args->barrier); 
+    pthread_barrier_wait(args.barrier); 
     pthread_barrier_init(&barrier, NULL, num_thread + 1);       // After each iteration, reset barrier.
   }
   
-  pthread_barrier_destroy(barrier);
+  pthread_barrier_destroy(args.barrier);
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
    */
