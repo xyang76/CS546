@@ -198,7 +198,6 @@ void* p_run(struct p_args args) {
       }
       B[row] -= B[norm] * multiplier;
     }
-    pthread_barrier_wait(&args.barrier);      // After each iteration, we release barrier.
  
 }
 
@@ -221,7 +220,6 @@ void gauss() {
   for(norm = 0; norm < N - 1; norm++) {
       /* Initialize pthread and args */
       for(int i = 0; i < num_thread; i++) {
-        args.barrier = barrier;
         args.num_thread = num_thread;
         args.start_index = i + 1;       // Cause the inner loop start from i + 1;
         args.norm = norm;
