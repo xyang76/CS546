@@ -14,7 +14,8 @@ void Test(int n) {
 }
 
 int main(int argc,char* argv[]) {
-    #pragma omp parallel num_threads (3) 
+    int threadNum = 3;
+    #pragma omp parallel num_threads (threadNum) 
     {
         printf("hello world! \n");
         #pragma omp for
