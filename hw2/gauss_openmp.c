@@ -185,15 +185,19 @@ void gauss() {
             * element row and col */
   float multiplier;
   
-  int num_thread = 4, chunck_size = 1;      /* Add by Xincheng, We need to set these value to test performance. */
+  /* Add by Xincheng, We need to set these value to test performance. */
+  int num_thread = 4, chunk_size = 1;      
 
   printf("Computing Serially.\n");
 
   /* Gaussian elimination */
-  for (norm = 0; norm < N - 1; norm++) {
-    #pragma omp parallel num_threads (num_thread)    /* Parallel this loop only. */
-    {
-        #pragma omp for schedule(static, chunck_size)
+  /* Put it outside because we do not want to allocate and release threads again and again. */
+  #pragma omp parallel num_threads (num_thread)    
+  {
+    for (norm = 0; norm < N - 1; norm++) {
+        /* 1. Parallel the inner loop only, bacause of dependency. */
+        /* 2. Use static chunk size will have better performance. */
+        #pragma omp for schedule(static, chunk_size)   
         for (row = norm + 1; row < N; row++) {
           multiplier = A[row][norm] / A[norm][norm];
           for (col = norm; col < N; col++) {
@@ -201,6 +205,7 @@ void gauss() {
           }
           B[row] -= B[norm] * multiplier;
         }
+        /* Implicit barrier here, so for each iteration, we will avoid violate data dependency.*/
     }
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back

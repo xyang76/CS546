@@ -14,6 +14,7 @@
 #include <sys/times.h>
 #include <sys/time.h>
 #include <time.h>
+#include <omp.h>
 
 /* Program Parameters */
 #define MAXN 2000  /* Max value of N */
@@ -27,7 +28,8 @@ volatile float A[MAXN][MAXN], B[MAXN], X[MAXN];
 #define randm() 4|2[uid]&3
 
 /* Prototype */
-void gauss();  /* The function you will provide.
+void gauss(); 
+void gauss2(); /* The function you will provide.
 		* It is this routine that is timed.
 		* It is called only on the parent.
 		*/
@@ -179,7 +181,7 @@ int main(int argc, char **argv) {
 /* Provided global variables are MAXN, N, A[][], B[], and X[],
  * defined in the beginning of this code.  X[] is initialized to zeros.
  */
-void gauss() {
+void gauss2() {
   int norm, row, col;  /* Normalization row, and zeroing
 			* element row and col */
   float multiplier;
@@ -199,6 +201,52 @@ void gauss() {
         }
         B[row] -= B[norm] * multiplier;
         printf("  [2] -- B[%d] = B[%d] * %f.\n", row, norm, multiplier);
+    }
+  }
+  /* (Diagonal elements are not normalized to 1.  This is treated in back
+   * substitution.)
+   */
+
+
+  /* Back substitution */
+  for (row = N - 1; row >= 0; row--) {
+    X[row] = B[row];
+    for (col = N-1; col > row; col--) {
+      X[row] -= A[row][col] * X[col];
+    }
+    X[row] /= A[row][row];
+  }
+}
+
+void gauss() {
+  int norm, row, col;  /* Normalization row, and zeroing
+            * element row and col */
+  float multiplier;
+  
+  /* Add by Xincheng, We need to set these value to test performance. */
+  int num_thread = 4, chunk_size = 1;      
+
+  printf("Computing Serially.\n");
+
+  /* Gaussian elimination */
+  /* Put it outside because we do not want to allocate and release threads again and again. */
+  #pragma omp parallel num_threads (num_thread)    
+  {
+    for (norm = 0; norm < N - 1; norm++) {
+        /* 1. Parallel the inner loop only, bacause of loop dependency. */
+        /* 2. Use static chunk size will have better performance. */
+        #pragma omp for schedule(static, chunk_size)   
+        for (row = norm + 1; row < N; row++) {
+          multiplier = A[row][norm] / A[norm][norm];
+          printf("  [2] %d -- %f = A[%d][%d] / A[%d][%d].\n", omp_get_thread_num(), multiplier, row, norm, norm, norm);
+          for (col = norm; col < N; col++) {
+              printf("    [3] -- A[%d][%d](%f) -= A[%d][%d](%f) * %f.\n", row, col, A[row][col], norm, col, A[norm][col], multiplier);
+              A[row][col] -= A[norm][col] * multiplier;
+          }
+          B[row] -= B[norm] * multiplier;
+          printf("  [2] -- B[%d] = B[%d] * %f.\n", row, norm, multiplier);
+        }
+        /* Implicit barrier here, so for each iteration, we will avoid violate loop dependency.*/
     }
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back
