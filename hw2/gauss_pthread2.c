@@ -184,21 +184,21 @@ struct p_args {
 };
 
 /* Pthread function */
-void* p_run(struct p_args args) {
+void* p_run(struct p_args *args) {
   int norm, row, col; 
   float multiplier;
   
-  norm = args.norm;
+  norm = args->norm;
   for (norm = 0; norm < N - 1; norm++) {
       /* Here we do row += args.num_thread*/
-    for (row = norm + args.start_index; row < N; row+= args.num_thread) {
+    for (row = norm + args->start_index; row < N; row+= args->num_thread) {
       multiplier = A[row][norm] / A[norm][norm];
       for (col = norm; col < N; col++) {
         A[row][col] -= A[norm][col] * multiplier;
       }
       B[row] -= B[norm] * multiplier;
     }
-    pthread_barrier_wait(&args.barrier);      // After each iteration, we release barrier.
+    pthread_barrier_wait(&args->barrier);      // After each iteration, we release barrier.
   }  
 }
 
@@ -216,24 +216,25 @@ void gauss() {
   
   /* Init pthread variables: barrier and mutex */
   pthread_barrier_t barrier;
-  struct p_args args;
+  struct p_args *args;
   pthread_barrier_init(&barrier, NULL, num_thread + 1);
   
+  args = (p_args*)malloc(sizeof(p_args));
   /* Initialize pthread and args */
   for(int i = 0; i < num_thread; i++) {
-    args.barrier = barrier;
-    args.num_thread = num_thread;
-    args.start_index = i + 1;       // Cause the inner loop start from i + 1;
+    args->barrier = barrier;
+    args->num_thread = num_thread;
+    args->start_index = i + 1;       // Cause the inner loop start from i + 1;
     pthread_create(NULL, NULL, p_run, (void*) &args);
   }
   
   /* Coordination based on barrier */
   for(int i = 0; i < N - 1; i++) {
-    pthread_barrier_wait(&args.barrier); 
+    pthread_barrier_wait(&args->barrier); 
     pthread_barrier_init(&barrier, NULL, num_thread + 1);       // After each iteration, reset barrier.
   }
   
-  pthread_barrier_destroy(&args.barrier);
+  pthread_barrier_destroy(&args->barrier);
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
    */

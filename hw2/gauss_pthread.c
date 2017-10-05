@@ -177,7 +177,6 @@ int main(int argc, char **argv) {
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
 struct p_args {
-  pthread_barrier_t barrier;    // We need a barrier to maintain data dependency.
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
@@ -213,7 +212,7 @@ void gauss() {
   /* Add by Xincheng, We need to set these values to test performance. */
   int num_thread = 4, chunk_size = 1;      
   
-  struct p_args args;
+  struct p_args args ;
   pthread_t tid;
   void *status;
   
