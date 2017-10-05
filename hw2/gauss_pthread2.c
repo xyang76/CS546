@@ -219,7 +219,7 @@ void gauss() {
   struct p_args *args;
   pthread_barrier_init(&barrier, NULL, num_thread + 1);
   
-  args = (p_args *)malloc(sizeof(p_args));
+  args = (struct p_args *)malloc(sizeof(struct p_args));
   /* Initialize pthread and args */
   for(int i = 0; i < num_thread; i++) {
     args->barrier = barrier;
