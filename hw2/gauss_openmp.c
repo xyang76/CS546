@@ -187,26 +187,27 @@ void gauss() {
   
   /* Add by Xincheng, We need to set these value to test performance. */
   int num_thread = 4, chunk_size = 1;      
+  
 
   printf("Computing Serially.\n");
 
   /* Gaussian elimination */
-  /* Put it outside because we do not want to allocate and release threads again and again. */
-  #pragma omp parallel num_threads (num_thread)    
-  {
-    for (norm = 0; norm < N - 1; norm++) {
-        /* 1. Parallel the inner loop only, bacause of dependency. */
-        /* 2. Use static chunk size will have better performance. */
-        #pragma omp for schedule(static, chunk_size)   
-        for (row = norm + 1; row < N; row++) {
-          multiplier = A[row][norm] / A[norm][norm];
-          for (col = norm; col < N; col++) {
-            A[row][col] -= A[norm][col] * multiplier;
-          }
-          B[row] -= B[norm] * multiplier;
-        }
-        /* Implicit barrier here, so for each iteration, we will avoid violate data dependency.*/
+  
+  /* Initial threads outside because we do not want to allocate and release threads again and again. */
+  omp_set_num_threads(num_thread);
+  
+  for (norm = 0; norm < N - 1; norm++) {
+    /* 1. Parallel the inner loop only, bacause of dependency. */
+    /* 2. Use static chunk size will have better performance. */
+    #pragma omp for schedule(static, chunk_size)   
+    for (row = norm + 1; row < N; row++) {
+      multiplier = A[row][norm] / A[norm][norm];
+      for (col = norm; col < N; col++) {
+        A[row][col] -= A[norm][col] * multiplier;
+      }
+      B[row] -= B[norm] * multiplier;
     }
+    /* Implicit barrier here, so for each iteration, we will avoid violate data dependency.*/
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
