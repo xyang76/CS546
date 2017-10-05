@@ -176,11 +176,11 @@ int main(int argc, char **argv) {
 
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
-struct p_args {
+struct{
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
-};
+} p_args;
 
 /* Pthread function */
 void* p_run(struct p_args args) {
