@@ -195,7 +195,7 @@ void gauss() {
         for (col = norm; col < N; col++) {
             printf("    [3] -- A[%d][%d](%f) = A[%d][%d](%f) * %f.\n", row, col, A[row][col], norm, col, A[norm][col], multiplier);
             A[row][col] -= A[norm][col] * multiplier;
-            printf("    [3] -- A[%d][%d](%f).\n", A[row][col]);
+            printf("    [3] -- A[%d][%d](%f).\n", row, col, A[row][col]);
         }
         B[row] -= B[norm] * multiplier;
         printf("  [2] -- B[%d] = B[%d] * %f.\n", row, norm, multiplier);
