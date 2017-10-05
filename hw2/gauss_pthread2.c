@@ -176,12 +176,12 @@ int main(int argc, char **argv) {
 
 /* ------------------ Above Was Provided --------------------- */
 /* Pthread args */
-struct p_args {
+struct {
   pthread_barrier_t barrier;    // We need a barrier to maintain data dependency.
   int num_thread;               // We need count thread num
   int start_index;              // We need the start index for each thread.
   int norm;
-};
+} p_args;
 
 /* Pthread function */
 void* p_run(struct p_args *args) {
@@ -219,7 +219,7 @@ void gauss() {
   struct p_args *args;
   pthread_barrier_init(&barrier, NULL, num_thread + 1);
   
-  args = (p_args*)malloc(sizeof(p_args));
+  args = (p_args *)malloc(sizeof(p_args));
   /* Initialize pthread and args */
   for(int i = 0; i < num_thread; i++) {
     args->barrier = barrier;
