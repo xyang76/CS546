@@ -189,8 +189,8 @@ void* p_run(struct p_args args) {
   float multiplier;
   
   norm = args.norm;
-  
-  /* Here we do row += args.num_thread*/
+  for (norm = 0; norm < N - 1; norm++) {
+      /* Here we do row += args.num_thread*/
     for (row = norm + args.start_index; row < N; row+= args.num_thread) {
       multiplier = A[row][norm] / A[norm][norm];
       for (col = norm; col < N; col++) {
@@ -199,7 +199,7 @@ void* p_run(struct p_args args) {
       B[row] -= B[norm] * multiplier;
     }
     pthread_barrier_wait(&args.barrier);      // After each iteration, we release barrier.
- 
+  }  
 }
 
 /****** You will replace this routine with your own parallel version *******/
@@ -207,26 +207,33 @@ void* p_run(struct p_args args) {
  * defined in the beginning of this code.  X[] is initialized to zeros.
  */
 void gauss() {
-  int col, row, norm;
+  int col, row;
   
   printf("Computing Serially.\n");
   
   /* Add by Xincheng, We need to set these values to test performance. */
   int num_thread = 4, chunk_size = 1;      
   
+  /* Init pthread variables: barrier and mutex */
+  pthread_barrier_t barrier;
   struct p_args args;
+  pthread_barrier_init(&barrier, NULL, num_thread + 1);
   
-  for(norm = 0; norm < N - 1; norm++) {
-      /* Initialize pthread and args */
-      for(int i = 0; i < num_thread; i++) {
-        args.barrier = barrier;
-        args.num_thread = num_thread;
-        args.start_index = i + 1;       // Cause the inner loop start from i + 1;
-        args.norm = norm;
-        pthread_create(NULL, NULL, p_run, (void*) &args);
-      }
+  /* Initialize pthread and args */
+  for(int i = 0; i < num_thread; i++) {
+    args.barrier = barrier;
+    args.num_thread = num_thread;
+    args.start_index = i + 1;       // Cause the inner loop start from i + 1;
+    pthread_create(NULL, NULL, p_run, (void*) &args);
   }
   
+  /* Coordination based on barrier */
+  for(int i = 0; i < N - 1; i++) {
+    pthread_barrier_wait(&args.barrier); 
+    pthread_barrier_init(&barrier, NULL, num_thread + 1);       // After each iteration, reset barrier.
+  }
+  
+  pthread_barrier_destroy(&args.barrier);
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
    */
