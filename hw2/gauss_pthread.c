@@ -198,7 +198,7 @@ void* p_run(struct p_args args) {
       }
       B[row] -= B[norm] * multiplier;
     }
-    pthread_barrier_wait(args->barrier);      // After each iteration, we release barrier.
+    pthread_barrier_wait(&args.barrier);      // After each iteration, we release barrier.
   }  
 }
 
@@ -207,6 +207,8 @@ void* p_run(struct p_args args) {
  * defined in the beginning of this code.  X[] is initialized to zeros.
  */
 void gauss() {
+  int col, row;
+  
   printf("Computing Serially.\n");
   
   /* Add by Xincheng, We need to set these values to test performance. */
@@ -227,11 +229,11 @@ void gauss() {
   
   /* Coordination based on barrier */
   for(int i = 0; i < N - 1; i++) {
-    pthread_barrier_wait(args.barrier); 
+    pthread_barrier_wait(&args.barrier); 
     pthread_barrier_init(&barrier, NULL, num_thread + 1);       // After each iteration, reset barrier.
   }
   
-  pthread_barrier_destroy(args.barrier);
+  pthread_barrier_destroy(&args.barrier);
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
    */
