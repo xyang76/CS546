@@ -20,7 +20,7 @@ int main(int argc,char* argv[]) {
         #pragma omp parallel for
         for(int i = 0; i < 5; ++i) {
             printf("hello world! \n");
-            #pragma omp for schedule(static, 1)
+            #pragma omp for
             for(int j = 0; j < 3; ++j) {
                 printf("Iteration %d-%d, id = %d! \n", i, j, omp_get_thread_num());
             }

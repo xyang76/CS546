@@ -225,18 +225,17 @@ void gauss() {
   
   /* Add by Xincheng, We need to set these value to test performance. */
   int num_thread = 3, chunk_size = 1;      
+  omp_set_num_threads(num_thread);
 
   printf("Computing Serially.\n");
-
+ 
   /* Gaussian elimination */
   /* Put it outside because we do not want to allocate and release threads again and again. */
-  #pragma omp parallel num_threads (num_thread)    
-  {
-    #pragma omp parallel for
+ 
     for (norm = 0; norm < N - 1; norm++) {
         /* 1. Parallel the inner loop only, bacause of loop dependency. */
         /* 2. Use static chunk size will have better performance. */
-        #pragma omp for  
+        #pragma omp parallel for  
         for (row = norm + 1; row < N; row++) {
           multiplier = A[row][norm] / A[norm][norm];
           printf("  [2] %d -- %f = A[%d][%d] / A[%d][%d].\n", omp_get_thread_num(), multiplier, row, norm, norm, norm);
@@ -249,7 +248,6 @@ void gauss() {
         }
         /* Implicit barrier here, so for each iteration, we will not violate loop dependency.*/
         printf("Finish\n");
-    }
   }
   /* (Diagonal elements are not normalized to 1.  This is treated in back
    * substitution.)
