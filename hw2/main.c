@@ -15,17 +15,16 @@ void Test(int n) {
 
 int main(int argc,char* argv[]) {
     int threadNum = 3;
-    #pragma omp parallel num_threads (threadNum) 
-    {
-        #pragma omp parallel for
-        for(int i = 0; i < 5; ++i) {
-            printf("hello world! \n");
-            #pragma omp for
-            for(int j = 0; j < 3; ++j) {
-                printf("Iteration %d-%d, id = %d! \n", i, j, omp_get_thread_num());
-            }
-            printf("Finish! \n");
-            
+    omp_set_num_threads(threadNum);
+    
+    for(int i = 0; i < 5; ++i) {
+        printf("hello world! \n");
+        #pragma omp for
+        for(int j = 0; j < 3; ++j) {
+            printf("Iteration %d-%d, id = %d! \n", i, j, omp_get_thread_num());
         }
+        printf("Finish! \n");
+        
     }
+    printf("FTT! \n");
 }
