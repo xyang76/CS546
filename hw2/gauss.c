@@ -224,7 +224,7 @@ void gauss() {
   float multiplier;
   
   /* Add by Xincheng, We need to set these value to test performance. */
-  int num_thread = 4, chunk_size = 1;      
+  int num_thread = 3, chunk_size = 1;      
 
   printf("Computing Serially.\n");
 
