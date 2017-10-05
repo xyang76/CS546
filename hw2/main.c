@@ -17,11 +17,13 @@ int main(int argc,char* argv[]) {
     int threadNum = 3;
     #pragma omp parallel num_threads (threadNum) 
     {
-        printf("hello world! \n");
-        #pragma omp for schedule(static, 1)
-        for(int i = 0; i < 4; ++i) {
-            printf("Iteration %d, %d! \n", i, omp_get_thread_num());
+        for(int i = 0; i < 10; ++i) {
+            printf("hello world! \n");
+            #pragma omp for schedule(static, 1)
+            for(int i = 0; i < 4; ++i) {
+                printf("Iteration %d, %d! \n", i, omp_get_thread_num());
+            }
+            printf("Finish! \n");
         }
-        printf("Finish! \n");
     }
 }
