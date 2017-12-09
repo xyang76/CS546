@@ -98,7 +98,7 @@ void fft_2d_RB(complex img[][SIZE], int isign)
 void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE])
 {
     int chunk_size = SIZE / proc_num;
-    complex tmp1[chunk_size + 1][SIZE], tmp2[chunk_size + 1][SIZE], tmp0[chunk_size + 1][SIZE];
+    complex tmp1[SIZE][SIZE], tmp2[SIZE][SIZE], tmp0[SIZE][SIZE];
     printf("01\n");
     // Scatter with row.
     MPI_Scatter(&img1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
