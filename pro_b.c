@@ -98,6 +98,7 @@ void fft_2d_RB(complex img[][SIZE], int isign)
     printf("5\n");
     // Scatter with row);
     MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    printf("5.5\n");
     print(tmp);
     printf("6\n");
 //    for(i = 0; i < chunk_size; i++) {
