@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
     complex tmp[SIZE][SIZE];
-    int chunk_size = size / proc_num;
+    int chunk_size = SIZE / proc_num;
     MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     for(i = 0; i < chunk_size; i++) {
         c_fft1d(tmp[i], SIZE, isign);
