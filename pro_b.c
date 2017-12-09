@@ -27,7 +27,7 @@
 typedef struct {float r; float i;} complex;
 static complex ctmp;
 
-#define SIZE 5
+#define SIZE 512
 int proc_num, proc_rank, i, j;              // Global variables: proc_num and proc_rank.
 MPI_Datatype FFT_COMPLEX;                   // FFT_COMPLEX;
 MPI_Datatype row_type, col_type;            // Row-type and col-type
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
     int chunk_size = SIZE / proc_num;
-    complex tmp[10][10];
+    complex tmp[SIZE][SIZE];
     
     // Scatter with row);
     MPI_Scatter(img, chunk_size, row_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
