@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     MM_Point_RB();
     fft_2d_RB(img_3, 1);
     if(proc_rank == 0) {
-        print(img_3);
+        write_file("tmp", img_3);
     }
     MPI_Finalize();
 }
