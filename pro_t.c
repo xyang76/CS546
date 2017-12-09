@@ -31,9 +31,18 @@ static complex ctmp;
 int proc_num, proc_rank, i, j;              // Global variables: proc_num and proc_rank.
 MPI_Datatype FFT_COMPLEX;                   // FFT_COMPLEX;
 MPI_Datatype row_type, col_type;            // Row-type and col-type
+double cal_start, cal_end;
+double com_start, com_end;               
+double cal_sum = 0, com_sum = 0;   
+int cal = 0, com = 0; 
 
+void c_fft1d(complex *r, int n, int isign);
+void fft_2d_RB(complex img[][SIZE], int isign);
+void read_file(char* path, complex img[][SIZE]);
+void write_file(char* path, complex img[][SIZE]);
+void calculate();
+void communicate();
 void print(complex tmp[][SIZE]);
-void test(complex img[][SIZE]);
 
 /* Main */
 int main(int argc, char** argv) 
@@ -45,6 +54,7 @@ int main(int argc, char** argv)
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
     
+    // MPI_Type define
     MPI_Type_contiguous(2, MPI_FLOAT, &FFT_COMPLEX);
     MPI_Type_commit(&FFT_COMPLEX);
     MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &col);
@@ -62,14 +72,14 @@ int main(int argc, char** argv)
             }
         }
     }
-    test(img);
+    fft_2d_RB(img, -1);
     
     
     
     MPI_Finalize();
 }
 
-void test(complex img[][SIZE])
+void fft_2d_RB(complex img[][SIZE], int isign)
 {
     complex tmp[SIZE][SIZE];
     for(i = 0; i < SIZE; i++) {
@@ -78,13 +88,107 @@ void test(complex img[][SIZE])
             tmp[i][j].i = 0;
         }
     }
-    MPI_Scatter(&img[0][0], 2, row_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(&img[0][0], 2, col_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
    
     for(i = 0; i < proc_num; i++) {
         if(proc_rank == i) {
             printf("Proc %d------\n", proc_rank);
             print(tmp);
         }
+    }
+}
+
+void c_fft1d(complex *r, int n, int isign)
+{
+   int     m,i,i1,j,k,i2,l,l1,l2;
+   float   c1,c2,z;
+   complex t, u;
+
+   if (isign == 0) return;
+
+   /* Do the bit reversal */
+   i2 = n >> 1;
+   j = 0;
+   for (i=0;i<n-1;i++) {
+      if (i < j)
+         C_SWAP(r[i], r[j]);
+      k = i2;
+      while (k <= j) {
+         j -= k;
+         k >>= 1;
+      }
+      j += k;
+   }
+
+   /* m = (int) log2((double)n); */
+   for (i=n,m=0; i>1; m++,i/=2);
+
+   /* Compute the FFT */
+   c1 = -1.0;
+   c2 =  0.0;
+   l2 =  1;
+   for (l=0;l<m;l++) {
+      l1   = l2;
+      l2 <<= 1;
+      u.r = 1.0;
+      u.i = 0.0;
+      for (j=0;j<l1;j++) {
+         for (i=j;i<n;i+=l2) {
+            i1 = i + l1;
+
+            /* t = u * r[i1] */
+            t.r = u.r * r[i1].r - u.i * r[i1].i;
+            t.i = u.r * r[i1].i + u.i * r[i1].r;
+
+            /* r[i1] = r[i] - t */
+            r[i1].r = r[i].r - t.r;
+            r[i1].i = r[i].i - t.i;
+
+            /* r[i] = r[i] + t */
+            r[i].r += t.r;
+            r[i].i += t.i;
+         }
+         z =  u.r * c1 - u.i * c2;
+
+         u.i = u.r * c2 + u.i * c1;
+         u.r = z;
+      }
+      c2 = sqrt((1.0 - c1) / 2.0);
+      if (isign == -1) /* FWD FFT */
+         c2 = -c2;
+      c1 = sqrt((1.0 + c1) / 2.0);
+   }
+
+   /* Scaling for inverse transform */
+   if (isign == 1) {       /* IFFT*/
+      for (i=0;i<n;i++) {
+         r[i].r /= n;
+         r[i].i /= n;
+      }
+   }
+}
+
+void calculate()
+{
+    if(cal == 0) {
+        cal = 1;
+        cal_start = MPI_Wtime();
+    } else {
+        cal = 0;
+        cal_end = MPI_Wtime();
+        cal_sum += cal_end - cal_start;
+    }
+}
+
+void communicate()
+{
+    if(com == 0) {
+        com = 1;
+        com_start = MPI_Wtime();
+    } else {
+        com = 0;
+        com_end = MPI_Wtime();
+        com_sum += com_end - com_start;
     }
 }
 
