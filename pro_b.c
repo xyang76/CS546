@@ -39,108 +39,59 @@ int cal = 0, com = 0;
 /* Methods declaration */
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 void c_fft1d(complex *r, int n, int isign);
+void fft_2d_RB(complex img[][SIZE], int isign);
 void read_file(char* path, complex img[][SIZE]);
 void write_file(char* path, complex img[][SIZE]);
-void fft_2d_RB(complex img[][SIZE], int isign);
-void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]);
-void print(complex img[][SIZE]);
+void calculate();
+void communicate();
+void print(complex tmp[][SIZE]);
 
 /* Main */
 int main(int argc, char** argv) 
 {
     complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE];
-    MPI_Datatype t;
-    
+    MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
-    printf("1\n");
+    
+    // MPI_Type define
+    MPI_Type_contiguous(2, MPI_FLOAT, &FFT_COMPLEX);
+    MPI_Type_commit(&FFT_COMPLEX);
+    MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &col);
+    MPI_Type_commit(&col);
+    MPI_Type_create_resized(col, 0, 1*sizeof(complex), &col_type);
+    MPI_Type_commit(&col_type);
+    MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
+    MPI_Type_commit(&row_type);
+    
     if(proc_rank == 0) {
         read_file("im1", img_1);
         read_file("im2", img_2);
     }
-    printf("2\n");
-    // Define MPI Complex.
-    MPI_Type_contiguous(2, MPI_FLOAT, &FFT_COMPLEX);
-    MPI_Type_commit(&FFT_COMPLEX);
-    printf("3\n");
-     // Column type
-    MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &t);
-    MPI_Type_commit(&t);
-    MPI_Type_create_resized(t, 0, sizeof(complex), &col_type);
-    MPI_Type_commit(&col_type);
-    // Row type
-    MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
-    MPI_Type_commit(&row_type);
-    printf("4\n");
-   
-    fft_2d_RB(img_1, -1);             // 2d fft
-//    fft_2d_RB(img_2, -1);             // 2d fft
-//    MM_Point_RB(img_1, img_2, out);   // Point product
-//    fft_2d_RB(out, 1);                // Inverse 2d fft
-    
-//     print(img_1);
-    
-//    if(proc_rank == 0) {
-//        write_file("out", out);
-//    }
-    
+    fft_2d_RB(img_1, -1);
+    fft_2d_RB(img_2, -1);
+    print(img_1);
+    print(img_2);
     MPI_Finalize();
 }
 
-/* Use 2D fft with MPI scatter and gather */
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
-//    int chunk_size = SIZE / proc_num;
-    int chunk_size = 1;
     complex tmp[SIZE][SIZE];
-    printf("5\n");
-    // Scatter with row);
-    MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
-    printf("5.5\n");
-    print(tmp);
-    printf("6\n");
-//    for(i = 0; i < chunk_size; i++) {
-//        c_fft1d(tmp[i], SIZE, isign);
-//    }
-//    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, row_type, 0, MPI_COMM_WORLD);
-    
-    
-    // Scatter with col.
-//    MPI_Scatter(img, chunk_size, col_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
-//    for(i = 0; i < chunk_size; i++) {
-//        c_fft1d(tmp[i], SIZE, isign);
-//    }
-//    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, col_type, 0, MPI_COMM_WORLD);
-}
-
-void print(complex img[][SIZE])
-{
-    for(i = 0; i < 10; i++) 
-    {
-        for(j = 0; j < 10; j++) {
-            printf("(%d:%d,%d)%g ", proc_rank, i, j, img[i][j].r);
-        }
-        printf("\n");
-    }
-}
-
-void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE])
-{
     int chunk_size = SIZE / proc_num;
-    complex tmp1[chunk_size + 1][SIZE], tmp2[chunk_size + 1][SIZE], tmp0[chunk_size + 1][SIZE];
-    
-    // Scatter with row.
-    MPI_Scatter(img1, chunk_size, row_type, tmp1, chunk_size, row_type, 0, MPI_COMM_WORLD);
-    MPI_Scatter(img2, chunk_size, row_type, tmp2, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     for(i = 0; i < chunk_size; i++) {
-        for(j = 0; j < SIZE; j++) {
-            tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
-            tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
-        }
+        c_fft1d(tmp[i], SIZE, isign);
     }
-    MPI_Gather(tmp0, chunk_size, row_type, out, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    
+    MPI_Scatter(&img[0][0], chunk_size, col_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        c_fft1d(tmp[i], SIZE, isign);
+    }
+    MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
 void read_file(char* path, complex img[][SIZE]) 
@@ -156,31 +107,6 @@ void read_file(char* path, complex img[][SIZE])
     }
     fclose(f);
 }
-
-void write_file(char* path, complex img[][SIZE])
-{
-    FILE *f;
-    f = fopen(path, "w");
-    for (i=0;i<512;i++) {
-        for (j=0;j<512;j++) {
-            fprintf(f, "%6.2g", img[i][j]);
-        }
-        fprintf(f, "\n");
-    }
-    fclose(f);
-}
-
-void transpose(complex img[][SIZE])
-{
-    complex tmp;
-    for(i = 0; i < SIZE; i++) 
-    {
-        for(j = i; j < SIZE; j++) {
-            C_SWAP(img[i][j], img[j][i]);
-        }
-    }
-}
-
 
 void c_fft1d(complex *r, int n, int isign)
 {
@@ -273,5 +199,15 @@ void communicate()
         com = 0;
         com_end = MPI_Wtime();
         com_sum += com_end - com_start;
+    }
+}
+
+void print(complex tmp[][SIZE])
+{
+    for(i = 0; i < SIZE; i++) {
+        for(j = 0; j < SIZE; j++) {
+            printf("%d,%d=%f\t", i, j, tmp[i][j].r);
+        }
+        printf("\n");
     }
 }
