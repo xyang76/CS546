@@ -17,13 +17,14 @@
 #include <stdio.h>
 
 /* Main */
+void read_file(char* path);
 int main(int argc, char** argv) 
 {
     float img[1024][1024];
     read_file("out");
 }
 
-void read_file(char* path, float** img) 
+void read_file(char* path) 
 {
     FILE *f; /*open file descriptor */
     int i, j;
@@ -32,13 +33,13 @@ void read_file(char* path, float** img)
     i = 0;
     while(1)
     {
-        v = fscanf(f, "%g", &tmp);
-        if(v < 0) {
+        j = fscanf(f, "%g", &tmp);
+        if(j < 0) {
             break;
         }
         i++;
     }
-    printf("i = %d\n", i);s
+    printf("i = %d\n", i);
     fclose(f);
 }
 
