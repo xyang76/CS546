@@ -36,12 +36,15 @@ void print(int tmp[][SIZE]);
 int main(int argc, char** argv) 
 {
     int img[SIZE][SIZE];
+     MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
     
-    MPI_Type_vector(4, 1, 4, MPI_INT, &col_type);
+    MPI_Type_vector(4, 1, 4, MPI_INT, &col);
+    MPI_Type_commit(&col);
+    MPI_Type_create_resized(col, 0, 1*sizeof(int), &col_type);
     MPI_Type_commit(&col_type);
     MPI_Type_contiguous(4, MPI_INT, &row_type);
     MPI_Type_commit(&row_type);
