@@ -125,7 +125,7 @@ void write_file(char* path)
     f = fopen(path, "w");
     for (i=0;i<512;i++) {
         for (j=0;j<512;j++) {
-            fprintf(f, "%6.2g", img_3[i][j]);
+            fprintf(f, "%6.2g", img_3[i][j].r);
         }
         fprintf(f, "\n");
     }
