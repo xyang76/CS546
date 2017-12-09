@@ -76,7 +76,7 @@ int main(int argc, char** argv)
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
     MM_Point_RB();
-    fft_2d_RB(img_3, 1);
+//    fft_2d_RB(img_3, 1);
     
     printf("Proc %d done\n", proc_rank);
 //    if(proc_rank == 0) {
