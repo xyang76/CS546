@@ -17,14 +17,14 @@
 #include <stdio.h>
 
 /* Main */
-void read_file(char* path, float** img);
+void read_file(char* path);
 int main(int argc, char** argv) 
 {
     float img[1024][1024];
-    read_file("im1", img);
+    read_file("im1");
 }
 
-void read_file(char* path, float** img) 
+void read_file(char* path) 
 {
     FILE *f; /*open file descriptor */
     int i, j;
