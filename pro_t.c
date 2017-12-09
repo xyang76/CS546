@@ -41,9 +41,9 @@ int main(int argc, char** argv)
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
     
-    MPI_Type_vector(SIZE, 1, SIZE, MPI_INT, &col_type);
+    MPI_Type_vector(4, 1, 4, MPI_INT, &col_type);
     MPI_Type_commit(&col_type);
-    MPI_Type_contiguous(SIZE, MPI_INT, &row_type);
+    MPI_Type_contiguous(4, MPI_INT, &row_type);
     MPI_Type_commit(&row_type);
     
     if(proc_rank == 0) {
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
    
     for(i = 0; i < proc_num; i++) {
         if(proc_rank == i) {
-            printf("Proc %d\n", proc_rank);
+            printf("Proc %d------\n", proc_rank);
             print(tmp);
         }
         MPI_Barrier(MPI_COMM_WORLD);
@@ -77,7 +77,7 @@ void print(int tmp[][SIZE])
 {
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
-            printf("%d,%d: %d ", i, j, tmp[i][j]);
+            printf("%d,%d=%d\t", i, j, tmp[i][j]);
         }
         printf("\n");
     }
