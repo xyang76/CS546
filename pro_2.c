@@ -16,6 +16,7 @@
 #include <math.h>
 #include <stdio.h>
 
+typedef struct {float r; float i;} complex;
 /* Main */
 void read_file(char* path);
 int main(int argc, char** argv) 
@@ -29,11 +30,11 @@ void read_file(char* path)
     FILE *f; /*open file descriptor */
     int i, j;
     f = fopen(path, "r");
-    float tmp;
+    complex tmp;
     i = 0;
     while(1)
     {
-        j = fscanf(f, "%g", &tmp);
+        j = fscanf(f, "%6.2g", &tmp);
         if(j < 0) {
             break;
         }
