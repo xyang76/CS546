@@ -31,6 +31,7 @@ MPI_Datatype FFT_COMPLEX;                   // FFT_COMPLEX;
 MPI_Datatype row_type, col_type;            // Row-type and col-type
 
 void print(int tmp[][SIZE]);
+void test(int img[][SIZE]);
 
 /* Main */
 int main(int argc, char** argv) 
@@ -56,7 +57,15 @@ int main(int argc, char** argv)
             }
         }
     }
+    test(img);
     
+    
+    
+    MPI_Finalize();
+}
+
+void test(int img[][SIZE])
+{
     int tmp[SIZE][SIZE];
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
@@ -71,8 +80,6 @@ int main(int argc, char** argv)
             print(tmp);
         }
     }
-    
-    MPI_Finalize();
 }
 
 void print(int tmp[][SIZE])
