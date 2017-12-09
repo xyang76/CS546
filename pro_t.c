@@ -94,6 +94,20 @@ void fft_2d_RB(complex img[][SIZE], int isign)
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
+void read_file(char* path, complex img[][SIZE]) 
+{
+    FILE *f; 
+    f = fopen(path, "r");
+    for (i=0; i<SIZE; i++)
+    {
+        for (j=0;j<SIZE;j++)
+        {
+            fscanf(f, "%g", &img[i][j].r); 
+        }
+    }
+    fclose(f);
+}
+
 void c_fft1d(complex *r, int n, int isign)
 {
    int     m,i,i1,j,k,i2,l,l1,l2;
