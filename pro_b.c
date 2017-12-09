@@ -74,7 +74,10 @@ int main(int argc, char** argv)
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
     MM_Point_RB();
-    print(img_3);
+    fft_2d_RB(img_3, 1);
+    if(proc_rank == 0) {
+        print(img_3);
+    }
     MPI_Finalize();
 }
 
