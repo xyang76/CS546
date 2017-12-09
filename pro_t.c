@@ -84,20 +84,18 @@ int main(int argc, char** argv)
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
     complex tmp[SIZE][SIZE];
-    for(i = 0; i < SIZE; i++) {
-        for(j = 0; j < SIZE; j++) {
-            tmp[i][j].r = 0;
-            tmp[i][j].i = 0;
-        }
+    int chunk_size = size / proc_num;
+    MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        c_fft1d(tmp[i], SIZE, isign);
     }
-    MPI_Scatter(&img[0][0], 2, col_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
-   
-    for(i = 0; i < proc_num; i++) {
-        if(proc_rank == i) {
-            printf("Proc %d------\n", proc_rank);
-            print(tmp);
-        }
+    MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    
+    MPI_Scatter(&img[0][0], chunk_size, col_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        c_fft1d(tmp[i], SIZE, isign);
     }
+    MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
 void c_fft1d(complex *r, int n, int isign)
