@@ -40,6 +40,7 @@ int cal = 0, com = 0;
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 void c_fft1d(complex *r, int n, int isign);
 void fft_2d_RB(complex img[][SIZE], int isign);
+void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]);
 void read_file(char* path, complex img[][SIZE]);
 void write_file(char* path, complex img[][SIZE]);
 void calculate();
