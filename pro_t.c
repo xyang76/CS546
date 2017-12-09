@@ -42,11 +42,11 @@ int main(int argc, char** argv)
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
     
-    MPI_Type_vector(4, 1, 4, MPI_INT, &col);
+    MPI_Type_vector(SIZE, 1, SIZE, MPI_INT, &col);
     MPI_Type_commit(&col);
     MPI_Type_create_resized(col, 0, 1*sizeof(int), &col_type);
     MPI_Type_commit(&col_type);
-    MPI_Type_contiguous(4, MPI_INT, &row_type);
+    MPI_Type_contiguous(SIZE, MPI_INT, &row_type);
     MPI_Type_commit(&row_type);
     
     if(proc_rank == 0) {
@@ -70,7 +70,6 @@ int main(int argc, char** argv)
             printf("Proc %d------\n", proc_rank);
             print(tmp);
         }
-        MPI_Barrier(MPI_COMM_WORLD);
     }
     
     MPI_Finalize();
