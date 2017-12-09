@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     }
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
-//    MM_Point_RB(img_1, img_2, out);
+    MM_Point_RB(img_1, img_2, out);
 //    print(out);
     MPI_Finalize();
 }
@@ -111,7 +111,7 @@ void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]
         }
     }
     printf("03\n");
-    MPI_Gather(&tmp0[0][0], chunk_size, row_type, &out[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+//    MPI_Gather(&tmp0[0][0], chunk_size, row_type, &out[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     printf("04\n");
 }
 
