@@ -92,7 +92,8 @@ int main(int argc, char** argv)
 /* Use 2D fft with MPI scatter and gather */
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
-    int chunk_size = SIZE / proc_num;
+//    int chunk_size = SIZE / proc_num;
+    int chunk_size = 1;
     complex tmp[SIZE][SIZE];
     printf("5\n");
     // Scatter with row);
