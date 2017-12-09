@@ -75,9 +75,9 @@ int main(int argc, char** argv)
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
     printf("1\n");
-    MM_Point_RB(img_1, img_2, out);
+//    MM_Point_RB(img_1, img_2, out);
     printf("2\n");
-    fft_2d_RB(out, 1); 
+//    fft_2d_RB(out, 1); 
     
     // Prove correctness
     if(proc_rank == 0) {
