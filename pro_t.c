@@ -71,7 +71,7 @@ int main(int argc, char** argv)
         read_file("im1", img_1);
         read_file("im2", img_2);
     }
-    
+    printf("0\n");
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
     printf("1\n");
