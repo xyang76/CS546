@@ -102,14 +102,14 @@ void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]
     printf("01\n");
     // Scatter with row.
     MPI_Scatter(&img1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
-    MPI_Scatter(&img2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+//    MPI_Scatter(&img2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     printf("02\n");
-    for(i = 0; i < chunk_size; i++) {
-        for(j = 0; j < SIZE; j++) {
-            tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
-            tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
-        }
-    }
+//    for(i = 0; i < chunk_size; i++) {
+//        for(j = 0; j < SIZE; j++) {
+//            tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
+//            tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
+//        }
+//    }
     printf("03\n");
 //    MPI_Gather(&tmp0[0][0], chunk_size, row_type, &out[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     printf("04\n");
