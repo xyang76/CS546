@@ -68,7 +68,7 @@ int main(int argc, char** argv)
      // Column type
     MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &t);
     MPI_Type_commit(&t);
-    MPI_Type_create_resized(t, 0, sizeof(struct complex), &col_type);
+    MPI_Type_create_resized(t, 0, sizeof(complex), &col_type);
     MPI_Type_commit(&col_type);
     // Row type
     MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
