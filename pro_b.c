@@ -102,20 +102,30 @@ void MM_Point_RB()
 {
     int chunk_size = SIZE / proc_num;
     complex tmp1[SIZE][SIZE], tmp2[SIZE][SIZE], tmp0[SIZE][SIZE];
-    printf("01\n");
     // Scatter with row.
     MPI_Scatter(&img_1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     MPI_Scatter(&img_2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
-    printf("02\n");
     for(i = 0; i < chunk_size; i++) {
         for(j = 0; j < SIZE; j++) {
             tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
             tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
         }
     }
-    printf("03\n");
     MPI_Gather(&tmp0[0][0], chunk_size, row_type, &img_3[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
-    printf("04\n");
+}
+
+void write_file(char* path, complex img[][SIZE])
+{
+    FILE *f; 
+    f = fopen(path, "w");
+    for (i=0; i<SIZE; i++)
+    {
+        for (j=0;j<SIZE;j++)
+        {
+            fprintf(f, "%6.2g", &img[i][j]); 
+        }
+    }
+    fclose(f);
 }
 
 void read_file(char* path, complex img[][SIZE]) 
