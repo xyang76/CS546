@@ -55,16 +55,16 @@ int main(int argc, char** argv)
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
-    
+    printf("1\n");
     if(proc_rank == 0) {
         read_file("im1", img_1);
         read_file("im2", img_2);
     }
-    
+    printf("2\n");
     // Define MPI Complex.
     MPI_Type_contiguous(2, MPI_FLOAT, &FFT_COMPLEX);
     MPI_Type_commit(&FFT_COMPLEX);
-    
+    printf("3\n");
      // Column type
     MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &t);
     MPI_Type_commit(&t);
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     // Row type
     MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
     MPI_Type_commit(&row_type);
-    
+    printf("4\n");
    
     fft_2d_RB(img_1, -1);             // 2d fft
 //    fft_2d_RB(img_2, -1);             // 2d fft
@@ -94,10 +94,11 @@ void fft_2d_RB(complex img[][SIZE], int isign)
 {
     int chunk_size = SIZE / proc_num;
     complex tmp[SIZE][SIZE];
-    
+    printf("5\n");
     // Scatter with row);
     MPI_Scatter(img, chunk_size, row_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
     print(tmp);
+    printf("6\n");
 //    for(i = 0; i < chunk_size; i++) {
 //        c_fft1d(tmp[i], SIZE, isign);
 //    }
