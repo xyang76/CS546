@@ -49,6 +49,7 @@ void print(complex img[][SIZE]);
 int main(int argc, char** argv) 
 {
     complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE];
+    MPI_Datatype t;
     
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
@@ -65,9 +66,10 @@ int main(int argc, char** argv)
     MPI_Type_commit(&FFT_COMPLEX);
     
      // Column type
-    MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &col_type);
+    MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &t);
+    MPI_Type_commit(&t);
+    MPI_Type_create_resized(t, 0, sizeof(struct complex), &col_type);
     MPI_Type_commit(&col_type);
-    
     // Row type
     MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
     MPI_Type_commit(&row_type);
@@ -90,25 +92,23 @@ int main(int argc, char** argv)
 /* Use 2D fft with MPI scatter and gather */
 void fft_2d_RB(complex img[][SIZE], int isign)
 {
-//    int chunk_size = SIZE / proc_num;
-    int chunk_size = 2;
+    int chunk_size = SIZE / proc_num;
     complex tmp[10][10];
     
     // Scatter with row);
-//    MPI_Scatter(img, chunk_size, row_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
-//    for(i = 0; i < chunk_size; i++) {
-//        c_fft1d(tmp[i], SIZE, isign);
-//    }
-//    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(img, chunk_size, row_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        c_fft1d(tmp[i], SIZE, isign);
+    }
+    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, row_type, 0, MPI_COMM_WORLD);
     
     
     // Scatter with col.
     MPI_Scatter(img, chunk_size, col_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
-    print(tmp);
-//    for(i = 0; i < chunk_size; i++) {
-//        c_fft1d(tmp[i], SIZE, isign);
-//    }
-//    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, col_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        c_fft1d(tmp[i], SIZE, isign);
+    }
+    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
 void print(complex img[][SIZE])
