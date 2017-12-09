@@ -40,7 +40,7 @@ int cal = 0, com = 0;
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 void c_fft1d(complex *r, int n, int isign);
 void fft_2d_RB(complex img[][SIZE], int isign);
-void MM_Point_RB(complex (*img1)[SIZE], complex (*img2)[SIZE], complex (*out)[SIZE]);
+void MM_Point_RB();
 void read_file(char* path, complex img[][SIZE]);
 void write_file(char* path, complex img[][SIZE]);
 void calculate();
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     }
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
-    MM_Point_RB(img_1, img_2, out);
+    MM_Point_RB();
 //    print(out);
     MPI_Finalize();
 }
@@ -95,7 +95,7 @@ void fft_2d_RB(complex img[][SIZE], int isign)
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
-void MM_Point_RB(complex (*img1)[SIZE], complex (*img2)[SIZE], complex (*out)[SIZE])
+void MM_Point_RB()
 {
     printf("01\n");
 }
