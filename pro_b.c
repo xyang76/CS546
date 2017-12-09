@@ -101,7 +101,7 @@ void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]
     complex tmp1[SIZE][SIZE], tmp2[SIZE][SIZE], tmp0[SIZE][SIZE];
     printf("01\n");
     // Scatter with row.
-    MPI_Scatter(&img1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+//    MPI_Scatter(&img1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
 //    MPI_Scatter(&img2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     printf("02\n");
 //    for(i = 0; i < chunk_size; i++) {
