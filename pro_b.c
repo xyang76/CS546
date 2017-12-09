@@ -46,7 +46,7 @@ void read_file(char* path, complex img[][SIZE]);
 void write_file(char* path, complex img[][SIZE]);
 void calculate();
 void communicate();
-void print(complex tmp[][SIZE]);
+void print(complex tmp[][SIZE], int k);
 
 /* Main */
 int main(int argc, char** argv) 
@@ -76,8 +76,10 @@ int main(int argc, char** argv)
     MM_Point_RB();
     fft_2d_RB(img_3, 1);
     if(proc_rank == 0) {
+//        print(img_3, 10);
         write_file("tmp", img_3);
     }
+    printf("Time elapse for proc %d, calculate time: %f,communicate time: %f.\n", proc_rank, cal_sum, com_sum);
     MPI_Finalize();
 }
 
@@ -85,17 +87,32 @@ void fft_2d_RB(complex img[][SIZE], int isign)
 {
     complex tmp[SIZE][SIZE];
     int chunk_size = SIZE / proc_num;
+    
+    communicate();
     MPI_Scatter(&img[0][0], chunk_size, row_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    communicate();
+    
+    calculate();
     for(i = 0; i < chunk_size; i++) {
         c_fft1d(tmp[i], SIZE, isign);
     }
+    calculate();
+    
+    communicate();
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     
     MPI_Scatter(&img[0][0], chunk_size, col_type, &tmp[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    communicate();
+    
+    calculate();
     for(i = 0; i < chunk_size; i++) {
         c_fft1d(tmp[i], SIZE, isign);
     }
+    calculate();
+    
+    communicate();
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
+    communicate();
 }
 
 void MM_Point_RB()
@@ -103,15 +120,23 @@ void MM_Point_RB()
     int chunk_size = SIZE / proc_num;
     complex tmp1[SIZE][SIZE], tmp2[SIZE][SIZE], tmp0[SIZE][SIZE];
     // Scatter with row.
+    communicate();
     MPI_Scatter(&img_1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
     MPI_Scatter(&img_2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    communicate();
+    
+    calculate();
     for(i = 0; i < chunk_size; i++) {
         for(j = 0; j < SIZE; j++) {
             tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
             tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
         }
     }
+    calculate();
+    
+    communicate();
     MPI_Gather(&tmp0[0][0], chunk_size, row_type, &img_3[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    communicate();
 }
 
 void write_file(char* path, complex img[][SIZE])
@@ -236,10 +261,10 @@ void communicate()
     }
 }
 
-void print(complex tmp[][SIZE])
+void print(complex tmp[][SIZE], int k)
 {
-    for(i = 0; i < SIZE; i++) {
-        for(j = 0; j < SIZE; j++) {
+    for(i = 0; i < k; i++) {
+        for(j = 0; j < k; j++) {
             printf("%d,%d=%f\t", i, j, tmp[i][j].r);
         }
         printf("\n");
