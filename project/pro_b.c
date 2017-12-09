@@ -77,9 +77,8 @@ int main(int argc, char** argv)
 //    fft_2d_RB(img_2, -1);             // 2d fft
 //    MM_Point_RB(img_1, img_2, out);   // Point product
 //    fft_2d_RB(out, 1);                // Inverse 2d fft
-    if(proc_rank == 0) {
-        print(img_1);
-    }
+    
+     print(img_1);
     
 //    if(proc_rank == 0) {
 //        write_file("out", out);
@@ -115,7 +114,7 @@ void print(complex img[][SIZE])
     for(i = 0; i < 10; i++) 
     {
         for(j = 0; j < 10; j++) {
-            printf("%d(%d, %d)=%g ", proc_rank, i, j, img[i][j].r);
+            printf("(%d:%d,%d)%g ", proc_rank, i, j, img[i][j].r);
         }
         printf("\n");
     }
