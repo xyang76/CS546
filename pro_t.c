@@ -49,7 +49,7 @@ void print(complex tmp[][SIZE]);
 /* Main */
 int main(int argc, char** argv) 
 {
-    complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE];
+    complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE], temp[SIZE][SIZE];
     MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
@@ -70,10 +70,26 @@ int main(int argc, char** argv)
         read_file("im1", img_1);
         read_file("im2", img_2);
     }
+    
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
-    print(img_1);
-    print(img_2);
+    MM_Point_RB(img_1, img_2, out);
+    fft_2d_RB(out, 1); 
+    
+    // Prove correctness
+    if(proc_rank == 0) {
+        read_file("out", temp);
+        for(i = 0; i < SIZE; i++) {
+            for(j = 0; j < SIZE; j++) {
+                if(out[i][j].r != temp[i][j].r || out[i][j].i != temp[i][j].i) {
+                    printf("The result is incorrect!\n");
+                    break;
+                }
+            }
+        }
+        printf("The result is correct!\n");
+    }
+    
     MPI_Finalize();
 }
 
@@ -92,6 +108,23 @@ void fft_2d_RB(complex img[][SIZE], int isign)
         c_fft1d(tmp[i], SIZE, isign);
     }
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
+}
+
+void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE])
+{
+    int chunk_size = SIZE / proc_num;
+    complex tmp1[chunk_size + 1][SIZE], tmp2[chunk_size + 1][SIZE], tmp0[chunk_size + 1][SIZE];
+    
+    // Scatter with row.
+    MPI_Scatter(img1, chunk_size, row_type, tmp1, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(img2, chunk_size, row_type, tmp2, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    for(i = 0; i < chunk_size; i++) {
+        for(j = 0; j < SIZE; j++) {
+            tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
+            tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
+        }
+    }
+    MPI_Gather(tmp0, chunk_size, row_type, out, chunk_size, row_type, 0, MPI_COMM_WORLD);
 }
 
 void read_file(char* path, complex img[][SIZE]) 
