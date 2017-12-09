@@ -40,7 +40,7 @@ int cal = 0, com = 0;
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 void c_fft1d(complex *r, int n, int isign);
 void fft_2d_RB(complex img[][SIZE], int isign);
-void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE]);
+void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex img3[][SIZE]);
 void read_file(char* path, complex img[][SIZE]);
 void write_file(char* path, complex img[][SIZE]);
 void calculate();
@@ -50,7 +50,7 @@ void print(complex tmp[][SIZE]);
 /* Main */
 int main(int argc, char** argv) 
 {
-    complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE];
+    complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], img_3[SIZE][SIZE];
     MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     }
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
-    MM_Point_RB(img_1, img_2);
+    MM_Point_RB(img_1, img_2, img_3);
 //    print(out);
     MPI_Finalize();
 }
@@ -95,7 +95,7 @@ void fft_2d_RB(complex img[][SIZE], int isign)
     MPI_Gather(&tmp[0][0], chunk_size, row_type, &img[0][0], chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
-void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE])
+void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex img3[][SIZE])
 {
     printf("01\n");
 }
