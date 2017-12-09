@@ -104,11 +104,11 @@ void fft_2d_RB(complex img[][SIZE], int isign)
     
     
     // Scatter with col.
-    MPI_Scatter(img, chunk_size, col_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
-    for(i = 0; i < chunk_size; i++) {
-        c_fft1d(tmp[i], SIZE, isign);
-    }
-    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, col_type, 0, MPI_COMM_WORLD);
+//    MPI_Scatter(img, chunk_size, col_type, tmp, chunk_size, row_type, 0, MPI_COMM_WORLD);
+//    for(i = 0; i < chunk_size; i++) {
+//        c_fft1d(tmp[i], SIZE, isign);
+//    }
+//    MPI_Gather(tmp, chunk_size, row_type, img, chunk_size, col_type, 0, MPI_COMM_WORLD);
 }
 
 void print(complex img[][SIZE])
