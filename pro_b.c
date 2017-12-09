@@ -43,7 +43,7 @@ void c_fft1d(complex *r, int n, int isign);
 void fft_2d_RB(complex img[][SIZE], int isign);
 void MM_Point_RB();
 void read_file(char* path, complex img[][SIZE]);
-void write_file(char* path, complex img[][SIZE]);
+void write_file(char* path);
 void calculate();
 void communicate();
 void print(complex tmp[][SIZE]);
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     fft_2d_RB(img_3, 1);
     
     if(proc_rank == 0) {
-        write_file("out", img_3);
+        write_file("out");
     }
     MPI_Finalize();
 }
@@ -119,13 +119,13 @@ void MM_Point_RB()
     MPI_Gather(&tmp0[0][0], chunk_size, row_type, &img_3[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
 }
 
-void write_file(char* path, complex img[][SIZE])
+void write_file(char* path)
 {
     FILE *f; /*open file descriptor */
     f = fopen(path, "w");
     for (i=0;i<512;i++) {
         for (j=0;j<512;j++) {
-            fprintf(f, "%6.2g", img[i][j]);
+            fprintf(f, "%6.2g", img_3[i][j]);
         }
         fprintf(f, "\n");
     }
