@@ -55,6 +55,11 @@ int main(int argc, char** argv)
     }
     
     int tmp[SIZE][SIZE];
+    for(i = 0; i < SIZE; i++) {
+        for(j = 0; j < SIZE; j++) {
+            tmp[i][j] = 0;
+        }
+    }
     MPI_Scatter(&img[0][0], 1, col_type, &tmp[0][0], 1, row_type, 0, MPI_COMM_WORLD);
    
     print(tmp);
@@ -66,7 +71,7 @@ void print(int tmp[][SIZE])
 {
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
-            printf("%d ", tmp[i][j]);
+            printf("%d: %d ", proc_rank, tmp[i][j]);
         }
         printf("\n");
     }
