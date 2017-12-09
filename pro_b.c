@@ -78,9 +78,10 @@ int main(int argc, char** argv)
     MM_Point_RB();
     fft_2d_RB(img_3, 1);
     
-    if(proc_rank == 0) {
-        write_file("out");
-    }
+    printf("Proc %d done\n", proc_rank);
+//    if(proc_rank == 0) {
+//        write_file("out");
+//    }
     MPI_Finalize();
 }
 
