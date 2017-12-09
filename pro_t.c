@@ -24,36 +24,41 @@
 #include <sys/time.h>
 #include <time.h>
 
+typedef struct {float r; float i;} complex;
+static complex ctmp;
+
 #define SIZE 8
-int DEFAULT_REQUIREMENT = 1;                // Default requirement: MPI_Send and MPI_Recv 
 int proc_num, proc_rank, i, j;              // Global variables: proc_num and proc_rank.
 MPI_Datatype FFT_COMPLEX;                   // FFT_COMPLEX;
 MPI_Datatype row_type, col_type;            // Row-type and col-type
 
-void print(int tmp[][SIZE]);
-void test(int img[][SIZE]);
+void print(complex tmp[][SIZE]);
+void test(complex img[][SIZE]);
 
 /* Main */
 int main(int argc, char** argv) 
 {
-    int img[SIZE][SIZE];
-     MPI_Datatype col;
+    complex img[SIZE][SIZE];
+    MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc_rank);
     
-    MPI_Type_vector(SIZE, 1, SIZE, MPI_INT, &col);
+    MPI_Type_contiguous(2, MPI_FLOAT, &FFT_COMPLEX);
+    MPI_Type_commit(&FFT_COMPLEX);
+    MPI_Type_vector(SIZE, 1, SIZE, FFT_COMPLEX, &col);
     MPI_Type_commit(&col);
-    MPI_Type_create_resized(col, 0, 1*sizeof(int), &col_type);
+    MPI_Type_create_resized(col, 0, 1*sizeof(complex), &col_type);
     MPI_Type_commit(&col_type);
-    MPI_Type_contiguous(SIZE, MPI_INT, &row_type);
+    MPI_Type_contiguous(SIZE, FFT_COMPLEX, &row_type);
     MPI_Type_commit(&row_type);
     
     if(proc_rank == 0) {
         for(i = 0; i < SIZE; i++) {
             for(j = 0; j < SIZE; j++) {
-                img[i][j] = i*SIZE + j;
+                img[i][j].r = i*SIZE + j;
+                img[i][j].i = 0;
             }
         }
     }
@@ -64,9 +69,9 @@ int main(int argc, char** argv)
     MPI_Finalize();
 }
 
-void test(int img[][SIZE])
+void test(complex img[][SIZE])
 {
-    int tmp[SIZE][SIZE];
+    complex tmp[SIZE][SIZE];
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
             tmp[i][j] = 0;
@@ -82,11 +87,11 @@ void test(int img[][SIZE])
     }
 }
 
-void print(int tmp[][SIZE])
+void print(complex tmp[][SIZE])
 {
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
-            printf("%d,%d=%d\t", i, j, tmp[i][j]);
+            printf("%d,%d=%f\t", i, j, tmp[i][j].r);
         }
         printf("\n");
     }
