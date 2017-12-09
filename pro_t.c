@@ -74,7 +74,8 @@ void test(complex img[][SIZE])
     complex tmp[SIZE][SIZE];
     for(i = 0; i < SIZE; i++) {
         for(j = 0; j < SIZE; j++) {
-            tmp[i][j] = 0;
+            tmp[i][j].r = 0;
+            tmp[i][j].i = 0;
         }
     }
     MPI_Scatter(&img[0][0], 2, col_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
