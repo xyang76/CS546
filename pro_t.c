@@ -74,7 +74,9 @@ int main(int argc, char** argv)
     
     fft_2d_RB(img_1, -1);
     fft_2d_RB(img_2, -1);
+    printf("1\n");
     MM_Point_RB(img_1, img_2, out);
+    printf("2\n");
     fft_2d_RB(out, 1); 
     
     // Prove correctness
@@ -115,17 +117,20 @@ void MM_Point_RB(complex img1[][SIZE], complex img2[][SIZE], complex out[][SIZE]
 {
     int chunk_size = SIZE / proc_num;
     complex tmp1[chunk_size + 1][SIZE], tmp2[chunk_size + 1][SIZE], tmp0[chunk_size + 1][SIZE];
-    
+    printf("01\n");
     // Scatter with row.
-    MPI_Scatter(img1, chunk_size, row_type, tmp1, chunk_size, row_type, 0, MPI_COMM_WORLD);
-    MPI_Scatter(img2, chunk_size, row_type, tmp2, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(&img1[0][0], chunk_size, row_type, &tmp1[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(&img2[0][0], chunk_size, row_type, &tmp2[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    printf("02\n");
     for(i = 0; i < chunk_size; i++) {
         for(j = 0; j < SIZE; j++) {
             tmp0[i][j].r = tmp1[i][j].r * tmp2[i][j].r - tmp1[i][j].i * tmp2[i][j].i;
             tmp0[i][j].i = tmp1[i][j].i * tmp2[i][j].r + tmp1[i][j].r * tmp2[i][j].i;
         }
     }
-    MPI_Gather(tmp0, chunk_size, row_type, out, chunk_size, row_type, 0, MPI_COMM_WORLD);
+    printf("03\n");
+    MPI_Gather(&tmp0[0][0], chunk_size, row_type, &out[0][0], chunk_size, row_type, 0, MPI_COMM_WORLD);
+    printf("04\n");
 }
 
 void read_file(char* path, complex img[][SIZE]) 
