@@ -27,7 +27,7 @@
 typedef struct {float r; float i;} complex;
 static complex ctmp;
 
-#define SIZE 8
+#define SIZE 512
 int proc_num, proc_rank, i, j;              // Global variables: proc_num and proc_rank.
 MPI_Datatype FFT_COMPLEX;                   // FFT_COMPLEX;
 MPI_Datatype row_type, col_type;            // Row-type and col-type
@@ -49,7 +49,7 @@ void print(complex tmp[][SIZE]);
 /* Main */
 int main(int argc, char** argv) 
 {
-    complex img[SIZE][SIZE];
+    complex img_1[SIZE][SIZE], img_2[SIZE][SIZE], out[SIZE][SIZE];
     MPI_Datatype col;
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
@@ -67,17 +67,13 @@ int main(int argc, char** argv)
     MPI_Type_commit(&row_type);
     
     if(proc_rank == 0) {
-        for(i = 0; i < SIZE; i++) {
-            for(j = 0; j < SIZE; j++) {
-                img[i][j].r = i*SIZE + j;
-                img[i][j].i = 0;
-            }
-        }
+        read_file("im1", img_1);
+        read_file("im2", img_2);
     }
-    fft_2d_RB(img, -1);
-    
-    
-    
+    fft_2d_RB(img_1, -1);
+    fft_2d_RB(img_2, -1);
+    print(img_1);
+    print(img_2);
     MPI_Finalize();
 }
 
