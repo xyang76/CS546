@@ -78,7 +78,7 @@ void test(complex img[][SIZE])
             tmp[i][j].i = 0;
         }
     }
-    MPI_Scatter(&img[0][0], 2, col_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
+    MPI_Scatter(&img[0][0], 2, row_type, &tmp[0][0], 2, row_type, 0, MPI_COMM_WORLD);
    
     for(i = 0; i < proc_num; i++) {
         if(proc_rank == i) {
