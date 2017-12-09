@@ -52,6 +52,7 @@ void print(complex tmp[][SIZE]);
 int main(int argc, char** argv) 
 {
     MPI_Datatype col;
+    complex temp[SIZE][SIZE];
     // Initialization and get proc_num and proc_rank.
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_num);
@@ -76,7 +77,16 @@ int main(int argc, char** argv)
     MM_Point_RB();
     fft_2d_RB(img_3, 1);
     if(proc_rank == 0) {
-        print(img_3);
+        read_file("out", temp);
+        for(i = 0; i < SIZE; i++) {
+            for(j = 0; j < SIZE; j++) {
+                if(img_3[i][j].r != temp[i][j].r || img_3[i][j].i != temp[i][j].i) {
+                    printf("The result is incorrect!\n");
+                    break;
+                }
+            }
+        }
+        printf("The result is correct!\n");
     }
     MPI_Finalize();
 }
